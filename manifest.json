@@ -1,13 +1,17 @@
 {
   "schemaVersion": 1,
-  "id": "archisman.quickbib",
+  "id": "archisman-panigrahi.quickbib",
   "name": "QuickBib",
   "version": "0.1.1",
   "author": "Archisman Panigrahi",
   "license": "GPL-3.0-only",
-  "description": "Fetch a BibTeX entry and an APS-style \\bibitem from a DOI, arXiv ID, or paper URL, using doi2bib3. Summon with: omarchy-shell shell toggle archisman.quickbib",
-  "kinds": ["bar-widget"],
-  "entryPoints": { "barWidget": "Panel.qml" },
+  "description": "Fetch a BibTeX entry and an APS-style \\bibitem from a DOI, arXiv ID, or paper URL, using doi2bib3. Summon with: omarchy-shell shell toggle archisman-panigrahi.quickbib",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "Panel.qml"
+  },
   "barWidget": {
     "displayName": "QuickBib",
     "description": "BibTeX and bibitem lookup for DOIs, arXiv IDs, and paper URLs",
@@ -18,7 +22,15 @@
       "timeoutSec": 15
     },
     "schema": [
-      { "key": "timeoutSec", "type": "integer", "label": "Network timeout (seconds)", "min": 5, "max": 60, "step": 1, "defaultValue": 15 }
+      {
+        "key": "timeoutSec",
+        "type": "integer",
+        "label": "Network timeout (seconds)",
+        "min": 5,
+        "max": 60,
+        "step": 1,
+        "defaultValue": 15
+      }
     ]
   }
 }

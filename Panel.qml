@@ -8,8 +8,8 @@ import "Model.js" as Model
 
 Panel {
   id: root
-  moduleName: "archisman.quickbib"
-  ipcTarget: "archisman.quickbib"
+  moduleName: "archisman-panigrahi.quickbib"
+  ipcTarget: "archisman-panigrahi.quickbib"
 
   // \uXXXX escape, never the literal glyph (colophon trap #14: PUA characters
   // do not survive every editing path).
@@ -371,10 +371,10 @@ Panel {
   // Local-testing IPC, separate target from the base Panel's open/close/
   // toggle handler. Lets you fake the dependency state without uninstalling
   // python-doi2bib3:
-  //   omarchy-shell archisman.quickbib.dev simulateMissingDep
-  //   omarchy-shell archisman.quickbib.dev simulateDepOk
+  //   omarchy-shell archisman-panigrahi.quickbib.dev simulateMissingDep
+  //   omarchy-shell archisman-panigrahi.quickbib.dev simulateDepOk
   IpcHandler {
-    target: "archisman.quickbib.dev"
+    target: "archisman-panigrahi.quickbib.dev"
 
     function simulateMissingDep(): void { service.debugSetDep("missing") }
     function simulateDepOk(): void { service.debugSetDep("ok") }

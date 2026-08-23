@@ -22,13 +22,13 @@ omarchy plugin add https://github.com/archisman-panigrahi/QuickBib-omarchy-plugi
 ## Remove
 
 ```bash
-omarchy plugin remove archisman.quickbib
+omarchy plugin remove archisman-panigrahi.quickbib
 ```
 
 ## Usage
 
 - Click the book glyph in the bar's right section, or run:
-  `omarchy-shell shell toggle archisman.quickbib`
+  `omarchy-shell shell toggle archisman-panigrahi.quickbib`
 - Paste a DOI (`10.1103/PhysRevA.100.042101`), an arXiv ID (`2401.12345`),
   or a publisher/article URL.
 - Press Enter or click *fetch*.
@@ -104,12 +104,12 @@ scripts/quickbib_fetch.py 10.9999/not-a-real-doi        # error path (JSON, exit
 ```
 
 **Live UI testing.** If you installed with `omarchy plugin add`, your
-`~/.config/omarchy/plugins/archisman.quickbib` is a clone of this repo and hot-
+`~/.config/omarchy/plugins/archisman-panigrahi.quickbib` is a clone of this repo and hot-
 reloads on every save; structural changes (new elements/properties) need
 `omarchy restart shell`. Then:
 
 ```bash
-omarchy-shell archisman.quickbib toggle      # open/close the panel from CLI
+omarchy-shell archisman-panigrahi.quickbib toggle      # open/close the panel from CLI
 ```
 
 In the panel: fetch a DOI/arXiv ID/URL, select part of the output with the
@@ -120,8 +120,8 @@ mouse, Ctrl+C to copy it, try both section **copy** buttons, click
 plugin exposes debug IPC that fakes the probe result:
 
 ```bash
-omarchy-shell archisman.quickbib.dev simulateMissingDep   # notice + Install button appear, glyph dims
-omarchy-shell archisman.quickbib.dev simulateDepOk        # back to normal
+omarchy-shell archisman-panigrahi.quickbib.dev simulateMissingDep   # notice + Install button appear, glyph dims
+omarchy-shell archisman-panigrahi.quickbib.dev simulateDepOk        # back to normal
 ```
 
 While simulating "missing", clicking **Install** still runs the real
@@ -159,7 +159,7 @@ gh repo create archisman-panigrahi/QuickBib-omarchy-plugin --public --source=. -
   the image line at the top of this file. The marketplace generates optimized
   card images automatically.
 - Search [omarchyplugins.com](https://omarchyplugins.com) to confirm the plugin
-  ID `archisman.quickbib` is not already listed — marketplace IDs are
+  ID `archisman-panigrahi.quickbib` is not already listed — marketplace IDs are
   permanent and unique across all repositories.
 
 **3. Submit the listing issue**
@@ -217,14 +217,14 @@ a maintainer applies final approval.
 **4. After publishing — make your local install updatable**
 
 Once the repo is on GitHub, convert the installed copy into a clone so future
-updates flow through `omarchy plugin update archisman.quickbib`:
+updates flow through `omarchy plugin update archisman-panigrahi.quickbib`:
 
 ```bash
-omarchy plugin remove archisman.quickbib
+omarchy plugin remove archisman-panigrahi.quickbib
 omarchy plugin add https://github.com/archisman-panigrahi/QuickBib-omarchy-plugin.git --enable
 ```
 
 To ship an update later: commit + push to `main`, then run
-`omarchy plugin update archisman.quickbib`. If the marketplace listing should
+`omarchy plugin update archisman-panigrahi.quickbib`. If the marketplace listing should
 reflect the newer commit, use its "Verify and publish a newer upstream commit"
 issue form with the new full HEAD SHA.
