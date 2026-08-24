@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "archisman-panigrahi.quickbib",
   "name": "QuickBib",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "author": "Archisman Panigrahi",
   "license": "GPL-3.0-only",
   "description": "Fetch a BibTeX entry and an APS-style \\bibitem from a DOI, arXiv ID, or paper URL, using doi2bib3. Summon with: omarchy-shell shell toggle archisman-panigrahi.quickbib",
