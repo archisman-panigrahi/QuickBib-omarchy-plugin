@@ -5,10 +5,7 @@ fetch a **BibTeX** entry and an APS-style **`\bibitem`** for a DOI, arXiv ID, or
 straight from the bar. Powered by the [`doi2bib3`](https://github.com/archisman-panigrahi/doi2bib3)
 Python package.
 
-<!-- Optional: drop a screenshot named preview.png in the repo root and
-     uncomment the next line -- the marketplace picks it up automatically.
 ![preview](preview.png)
--->
 
 Note: While this plugin uses arXiv and crossref APIs and does not use any AI/ML algorithms
 in the runtime, it was initially vibe coded with OpenCode.
