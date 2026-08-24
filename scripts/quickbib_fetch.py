@@ -21,11 +21,10 @@ import json
 import re
 import sys
 from unittest import mock
-from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 KEY_RE = re.compile(r"^@\w+\s*\{\s*([^,\s]+?)\s*,", re.MULTILINE)
-MAX_RESPONSE_BYTES = 20 * 1024
-MAX_OUTPUT_BYTES = 20 * 1024
+MAX_RESPONSE_BYTES = 250 * 1024
+MAX_OUTPUT_BYTES = 250 * 1024
 
 
 def citation_key(bibtex_str):
@@ -47,24 +46,14 @@ def bounded_doi2bib3_requests():
 
     def bounded_get(*args, **kwargs):
         kwargs["stream"] = True
-        request_args = list(args)
-        if request_args and isinstance(request_args[0], str):
-            url = urlsplit(request_args[0])
-            if url.netloc == "api.crossref.org" and url.path == "/works":
-                query = dict(parse_qsl(url.query))
-                query["rows"] = "1"
-                query["select"] = "DOI,URL,score"
-                request_args[0] = urlunsplit(
-                    (url.scheme, url.netloc, url.path, urlencode(query), url.fragment)
-                )
-        response = requests_get(*request_args, **kwargs)
+        response = requests_get(*args, **kwargs)
         body = bytearray()
         try:
             for chunk in response.iter_content(chunk_size=64 * 1024):
                 body.extend(chunk)
                 if len(body) > MAX_RESPONSE_BYTES:
                     raise ResponseTooLarge(
-                        "remote response exceeds the 20 KiB size limit"
+                        "remote response exceeds the 250 KiB size limit"
                     )
             response._content = bytes(body)
             response._content_consumed = True
