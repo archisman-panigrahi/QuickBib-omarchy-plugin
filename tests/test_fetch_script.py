@@ -101,6 +101,22 @@ class FetchTest(unittest.TestCase):
                     requests.get("https://example.test")
         response.close.assert_called_once_with()
 
+    def test_crossref_request_uses_compact_query(self):
+        response = mock.MagicMock()
+        response.iter_content.return_value = [b"{}"]
+        requests = mock.MagicMock()
+        requests.get.return_value = response
+        backend = mock.MagicMock()
+        backend.requests = requests
+        with mock.patch.dict(sys.modules, {"doi2bib3.backend": backend}):
+            with quickbib_fetch.bounded_doi2bib3_requests():
+                requests.get(
+                    "https://api.crossref.org/works?query.bibliographic=test&rows=5"
+                )
+        called_url = requests.get.call_args.args[0]
+        self.assertIn("rows=1", called_url)
+        self.assertIn("select=DOI%2CURL%2Cscore", called_url)
+
 
 class MainTest(unittest.TestCase):
     def run_main(self, argv):

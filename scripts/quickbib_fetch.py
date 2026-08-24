@@ -21,6 +21,7 @@ import json
 import re
 import sys
 from unittest import mock
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 KEY_RE = re.compile(r"^@\w+\s*\{\s*([^,\s]+?)\s*,", re.MULTILINE)
 MAX_RESPONSE_BYTES = 20 * 1024
@@ -46,7 +47,17 @@ def bounded_doi2bib3_requests():
 
     def bounded_get(*args, **kwargs):
         kwargs["stream"] = True
-        response = requests_get(*args, **kwargs)
+        request_args = list(args)
+        if request_args and isinstance(request_args[0], str):
+            url = urlsplit(request_args[0])
+            if url.netloc == "api.crossref.org" and url.path == "/works":
+                query = dict(parse_qsl(url.query))
+                query["rows"] = "1"
+                query["select"] = "DOI,URL,score"
+                request_args[0] = urlunsplit(
+                    (url.scheme, url.netloc, url.path, urlencode(query), url.fragment)
+                )
+        response = requests_get(*request_args, **kwargs)
         body = bytearray()
         try:
             for chunk in response.iter_content(chunk_size=64 * 1024):
@@ -57,7 +68,6 @@ def bounded_doi2bib3_requests():
                     )
             response._content = bytes(body)
             response._content_consumed = True
-            response.close()
             return response
         except Exception:
             response.close()
