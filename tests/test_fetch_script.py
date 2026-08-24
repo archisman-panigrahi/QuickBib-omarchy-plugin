@@ -38,9 +38,14 @@ def make_fake_doi(fetch_result=None, fetch_exc=None):
 
 
 def install_fake_doi(fetch_result=None, fetch_exc=None):
+    backend = mock.MagicMock()
+    backend.requests = mock.MagicMock()
     return mock.patch.dict(
         sys.modules,
-        {"doi2bib3": make_fake_doi(fetch_result, fetch_exc)})
+        {
+            "doi2bib3": make_fake_doi(fetch_result, fetch_exc),
+            "doi2bib3.backend": backend,
+        })
 
 
 class CitationKeyTest(unittest.TestCase):
@@ -72,9 +77,29 @@ class FetchTest(unittest.TestCase):
 
     def test_timeout_is_forwarded(self):
         fake = make_fake_doi()
-        with mock.patch.dict(sys.modules, {"doi2bib3": fake}):
+        backend = mock.MagicMock()
+        backend.requests = mock.MagicMock()
+        with mock.patch.dict(sys.modules, {
+            "doi2bib3": fake,
+            "doi2bib3.backend": backend,
+        }):
             quickbib_fetch.fetch("10.1234/x", 42)
         fake.fetch_bibtex.assert_called_once_with("10.1234/x", timeout=42)
+
+    def test_response_reader_rejects_oversized_body(self):
+        response = mock.MagicMock()
+        response.iter_content.return_value = [
+            b"x" * (quickbib_fetch.MAX_RESPONSE_BYTES + 1)
+        ]
+        requests = mock.MagicMock()
+        requests.get.return_value = response
+        backend = mock.MagicMock()
+        backend.requests = requests
+        with mock.patch.dict(sys.modules, {"doi2bib3.backend": backend}):
+            with self.assertRaises(quickbib_fetch.ResponseTooLarge):
+                with quickbib_fetch.bounded_doi2bib3_requests():
+                    requests.get("https://example.test")
+        response.close.assert_called_once_with()
 
 
 class MainTest(unittest.TestCase):
@@ -115,6 +140,22 @@ class MainTest(unittest.TestCase):
         error = json.loads(out)["error"]
         self.assertIn("doi2bib3", error)
         self.assertIn("python-doi2bib3", error)
+
+    def test_oversized_output_is_replaced_with_bounded_error(self):
+        oversized = dict(
+            ok=True,
+            key="key",
+            bibtex="x" * quickbib_fetch.MAX_OUTPUT_BYTES,
+            bibitem="",
+        )
+        stdout = io_capture()
+        with mock.patch.object(sys, "stdout", stdout):
+            quickbib_fetch.emit_result(oversized)
+        self.assertLessEqual(
+            len(stdout.getvalue().encode("utf-8")),
+            quickbib_fetch.MAX_OUTPUT_BYTES,
+        )
+        self.assertFalse(json.loads(stdout.getvalue())["ok"])
 
 
 def io_capture():

@@ -60,6 +60,9 @@ Panel.qml                   render only: input field, results, copy buttons
 One network pass per lookup: the BibTeX is fetched once and the `\bibitem`
 is derived locally via `format_bibtex_to_aps_bibitem`.
 
+The fetch helper bounds each network
+response to 20 KiB and its JSON output to 20 KiB before stdout is collected by
+QML.
 **Why a Python helper script?** QML cannot import Python packages, and every
 bit of the actual work (DOI/arXiv/publisher resolution, BibTeX retrieval,
 `\bibitem` formatting) lives in doi2bib3. The script is deliberately thin
