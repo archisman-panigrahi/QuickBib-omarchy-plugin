@@ -5,7 +5,7 @@
   "version": "1.0.1",
   "author": "Archisman Panigrahi",
   "license": "GPL-3.0-only",
-  "description": "Fetch a BibTeX entry and an APS-style \\bibitem from a DOI, arXiv ID, or paper URL, using doi2bib3. Summon with: omarchy-shell shell toggle archisman-panigrahi.quickbib",
+  "description": "Fetch a BibTeX entry and an APS-style \\bibitem from a DOI, arXiv ID, or paper URL, using doi2bib3. Helps you to quickly generate references while writing with LaTeX.",
   "kinds": [
     "bar-widget"
   ],
