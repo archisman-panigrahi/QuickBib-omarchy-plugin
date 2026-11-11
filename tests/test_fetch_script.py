@@ -84,7 +84,24 @@ class FetchTest(unittest.TestCase):
             "doi2bib3.backend": backend,
         }):
             quickbib_fetch.fetch("10.1234/x", 42)
-        fake.fetch_bibtex.assert_called_once_with("10.1234/x", timeout=42)
+        fake.fetch_bibtex.assert_called_once_with("10.1234/x", timeout=42,
+                                                  mbox=False)
+        fake.format_bibtex_to_aps_bibitem.assert_called_once_with(BIBTEX,
+                                                                  mbox=False)
+
+    def test_mbox_is_forwarded_to_both_formats(self):
+        fake = make_fake_doi()
+        backend = mock.MagicMock()
+        backend.requests = mock.MagicMock()
+        with mock.patch.dict(sys.modules, {
+            "doi2bib3": fake,
+            "doi2bib3.backend": backend,
+        }):
+            quickbib_fetch.fetch("10.1234/x", 15, mbox=True)
+        fake.fetch_bibtex.assert_called_once_with("10.1234/x", timeout=15,
+                                                  mbox=True)
+        fake.format_bibtex_to_aps_bibitem.assert_called_once_with(BIBTEX,
+                                                                  mbox=True)
 
     def test_response_reader_rejects_oversized_body(self):
         response = mock.MagicMock()
@@ -129,6 +146,35 @@ class MainTest(unittest.TestCase):
         self.assertEqual(code, 0)
         parsed = json.loads(out)
         self.assertTrue(parsed["ok"])
+
+    def test_mbox_flag_reaches_both_formats(self):
+        fake = make_fake_doi()
+        backend = mock.MagicMock()
+        backend.requests = mock.MagicMock()
+        with mock.patch.dict(sys.modules, {
+            "doi2bib3": fake,
+            "doi2bib3.backend": backend,
+        }):
+            code, out = self.run_main(["--mbox", "10.1234/x"])
+        self.assertEqual(code, 0)
+        self.assertTrue(json.loads(out)["ok"])
+        fake.fetch_bibtex.assert_called_once_with("10.1234/x", timeout=15,
+                                                  mbox=True)
+        fake.format_bibtex_to_aps_bibitem.assert_called_once_with(BIBTEX,
+                                                                  mbox=True)
+
+    def test_mbox_flag_defaults_off(self):
+        fake = make_fake_doi()
+        backend = mock.MagicMock()
+        backend.requests = mock.MagicMock()
+        with mock.patch.dict(sys.modules, {
+            "doi2bib3": fake,
+            "doi2bib3.backend": backend,
+        }):
+            code, out = self.run_main(["10.1234/x"])
+        self.assertEqual(code, 0)
+        fake.fetch_bibtex.assert_called_once_with("10.1234/x", timeout=15,
+                                                  mbox=False)
 
     def test_failure_prints_json_error_and_exits_nonzero(self):
         with install_fake_doi(fetch_exc=RuntimeError("boom\nsecond line")):

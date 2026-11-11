@@ -3,12 +3,16 @@
 #
 # GPL-3.0-or-later; same license as the doi2bib3 package this drives.
 #
-"""Fetch a BibTeX entry and an APS-style \bibitem for one identifier.
+r"""Fetch a BibTeX entry and an APS-style \bibitem for one identifier.
 
 The identifier may be a DOI, an arXiv ID, or a paper URL -- anything
 doi2bib3's fetch_bibtex() accepts. One network pass: the BibTeX is fetched
 once, then formatted locally into a \bibitem via format_bibtex_to_aps_bibitem,
 rather than calling fetch_bibitem_aps() and paying for a second resolution.
+
+With --mbox the author surnames in both outputs are wrapped in \mbox{} (the
+same behaviour as doi2bib3's own -m/--mbox flag), so LaTeX never breaks a
+name across lines.
 
 Prints exactly one JSON object on stdout:
   {"ok": true,  "key": "...", "bibtex": "...", "bibitem": "..."}
@@ -66,15 +70,15 @@ def bounded_doi2bib3_requests():
         yield
 
 
-def fetch(identifier, timeout):
+def fetch(identifier, timeout, mbox=False):
     """Resolve *identifier* to both citation formats as a result dict."""
     import doi2bib3
 
     with bounded_doi2bib3_requests():
-        bibtex = doi2bib3.fetch_bibtex(identifier, timeout=timeout)
+        bibtex = doi2bib3.fetch_bibtex(identifier, timeout=timeout, mbox=mbox)
     if not bibtex.strip():
         raise ValueError("no BibTeX entry found for " + identifier)
-    bibitem = doi2bib3.format_bibtex_to_aps_bibitem(bibtex)
+    bibitem = doi2bib3.format_bibtex_to_aps_bibitem(bibtex, mbox=mbox)
     return {
         "ok": True,
         "key": citation_key(bibtex),
@@ -107,6 +111,9 @@ def main(argv=None):
     parser.add_argument("identifier", help="DOI, arXiv ID, or paper URL")
     parser.add_argument("--timeout", type=int, default=15,
                         help="network timeout in seconds (default: 15)")
+    parser.add_argument("-m", "--mbox", action="store_true",
+                        help="wrap author surnames in \\mbox{} "
+                             "to prevent line breaks")
     args = parser.parse_args(argv)
 
     try:
@@ -120,7 +127,7 @@ def main(argv=None):
         return 1
 
     try:
-        result = fetch(args.identifier, max(1, args.timeout))
+        result = fetch(args.identifier, max(1, args.timeout), mbox=args.mbox)
     except Exception as exc:
         message = first_line(exc) or exc.__class__.__name__
         emit_result({"ok": False, "error": message[:1024]})

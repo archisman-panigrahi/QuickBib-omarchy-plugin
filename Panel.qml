@@ -25,6 +25,33 @@ Panel {
     return value
   }
 
+  // Applied locally first so the checkbox redraws on the click itself; the
+  // shell.json write comes back through the bar as the same value (same
+  // pattern as the clock panel). With no writable entry it stays a
+  // session-only preference rather than doing nothing.
+  function persistSettings(values) {
+    var entry = { id: root.moduleName }
+    for (var existing in root.settings)
+      if (existing !== "id") entry[existing] = root.settings[existing]
+    for (var key in values) entry[key] = values[key]
+
+    root.settings = entry
+    if (root.bar && root.bar.shell &&
+        typeof root.bar.shell.updateEntryInline === "function")
+      root.bar.shell.updateEntryInline(root.moduleName, entry)
+  }
+
+  function setMbox(enabled) {
+    if (service.mbox === enabled) return
+    persistSettings({ mbox: enabled })
+    // Re-run the last lookup so the shown output matches the ticked state.
+    // A fetch in flight queues this as its pending request instead (trap
+    // #11), so it still lands with the new flag. Only refresh when results
+    // are on screen -- an error or empty panel is left for the next fetch.
+    if (service.bibtex !== "")
+      Qt.callLater(function () { service.fetch(service.lastIdentifier) })
+  }
+
   implicitWidth: button.implicitWidth
   implicitHeight: button.implicitHeight
 
@@ -178,6 +205,64 @@ Panel {
           enabled: identifierInput.text.trim() !== "" && !service.loading
           opacity: enabled ? 1.0 : 0.4
           onClicked: service.fetch(identifierInput.text)
+        }
+      }
+
+      // ── mbox option ──
+      // Checkmark row for doi2bib3's --mbox. Clicking flips the persisted
+      // setting; the next fetch (including one still pending) picks it up.
+      Item {
+        Layout.fillWidth: true
+        implicitHeight: Math.max(mboxRow.implicitHeight, Style.space(16))
+
+        RowLayout {
+          id: mboxRow
+          anchors.left: parent.left
+          anchors.right: parent.right
+          spacing: Style.space(6)
+
+          // Checkbox square with a tick, same visual language as the
+          // shell kit's MultiSelect checkboxes.
+          BorderSurface {
+            id: mboxBox
+            Layout.alignment: Qt.AlignVCenter
+            implicitWidth: Style.space(16)
+            implicitHeight: Style.space(16)
+            radius: Math.max(2, Style.cornerRadius / 2)
+            color: service.mbox
+              ? Style.selectedFillFor(root.fg, Color.accent)
+              : "transparent"
+            borderSpec: service.mbox
+              ? Border.controlSpec("selected", root.fg, Color.accent)
+              : Border.controlSpec("normal", root.fg, Color.accent)
+
+            Text {
+              anchors.centerIn: parent
+              visible: service.mbox
+              text: "\u2713"
+              color: Style.selectedStateColor(root.fg, Color.accent)
+              font.family: root.fontFamily
+              font.pixelSize: Math.round(mboxBox.height * 0.85)
+              font.bold: true
+            }
+          }
+
+          Text {
+            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignVCenter
+            text: "Prevent line breaking in author names"
+            color: root.dim
+            font.family: root.fontFamily
+            font.pixelSize: Style.font.caption
+            elide: Text.ElideRight
+          }
+        }
+
+        MouseArea {
+          anchors.fill: parent
+          hoverEnabled: true
+          cursorShape: Qt.PointingHandCursor
+          onClicked: root.setMbox(!service.mbox)
         }
       }
 

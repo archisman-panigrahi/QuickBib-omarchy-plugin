@@ -49,6 +49,9 @@ Item {
   }
 
   readonly property int timeoutSec: setting("timeoutSec", 15)
+  // doi2bib3's --mbox: wrap author surnames in \mbox{} so LaTeX never breaks
+  // a name across lines. Off by default; toggled from the panel's checkbox.
+  readonly property bool mbox: setting("mbox", false) === true
 
   function fetch(identifier) {
     var id = String(identifier || "").trim()
@@ -70,8 +73,11 @@ Item {
     root.lastIdentifier = id
     root.fetchExited = false
     // `--` so an identifier starting with "-" cannot be read as a flag.
-    fetchProc.command = ["python3", root.scriptPath,
-                         "--timeout", String(root.timeoutSec), "--", id]
+    var command = ["python3", root.scriptPath,
+                   "--timeout", String(root.timeoutSec)]
+    if (root.mbox) command.push("--mbox")
+    command.push("--", id)
+    fetchProc.command = command
     fetchProc.running = true
   }
 

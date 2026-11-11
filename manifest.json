@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "archisman-panigrahi.quickbib",
   "name": "QuickBib",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "author": "Archisman Panigrahi",
   "license": "GPL-3.0-only",
   "description": "Fetch a BibTeX entry and an APS-style \\bibitem from a DOI, arXiv ID, or paper URL, using doi2bib3. Helps you to quickly generate references while writing with LaTeX.",
@@ -19,7 +19,8 @@
     "allowMultiple": false,
     "defaultSection": "right",
     "defaults": {
-      "timeoutSec": 15
+      "timeoutSec": 15,
+      "mbox": false
     },
     "schema": [
       {
@@ -30,6 +31,12 @@
         "max": 60,
         "step": 1,
         "defaultValue": 15
+      },
+      {
+        "key": "mbox",
+        "type": "boolean",
+        "label": "Wrap author surnames in \\mbox{} (prevent line breaks)",
+        "defaultValue": false
       }
     ]
   }

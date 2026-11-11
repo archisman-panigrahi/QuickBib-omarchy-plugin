@@ -31,6 +31,10 @@ omarchy plugin remove archisman-panigrahi.quickbib
 - Press Enter or click *fetch*.
 - Copy the whole entry with its section's **copy** button, or select any part
   of the text and press **Ctrl+C**.
+- Tick **Wrap author surnames in `\mbox{}`** (doi2bib3's `--mbox`) to stop
+  LaTeX breaking author names across lines in both outputs; untick for plain
+  output. The tick is remembered across restarts, and toggling it re-fetches
+  the entry currently on screen.
 - "Report Issues" at the bottom of the panel opens this repository's issue tracker.
 
 ## External dependencies
@@ -75,6 +79,8 @@ logic stays in doi2bib3 where it is maintained and tested. The alternative
 In the shell settings panel for the widget:
 
 - **Network timeout (seconds)** — default 15.
+- **Wrap author surnames in `\mbox{}`** — default off. Also togglable from
+  the checkbox inside the panel; both write the same setting.
 
 ## Tests
 
@@ -100,6 +106,7 @@ omarchy plugin validate .                    # manifest schema validation
 scripts/quickbib_fetch.py 10.1103/PhysRevA.100.042101   # DOI
 scripts/quickbib_fetch.py 2401.12345                    # arXiv ID
 scripts/quickbib_fetch.py https://arxiv.org/abs/1706.03762  # URL
+scripts/quickbib_fetch.py --mbox 10.1103/PhysRevA.100.042101  # mbox on
 scripts/quickbib_fetch.py 10.9999/not-a-real-doi        # error path (JSON, exit 1)
 ```
 
@@ -113,8 +120,9 @@ omarchy-shell archisman-panigrahi.quickbib toggle      # open/close the panel fr
 ```
 
 In the panel: fetch a DOI/arXiv ID/URL, select part of the output with the
-mouse, Ctrl+C to copy it, try both section **copy** buttons, click
-**Report Issues**.
+mouse, Ctrl+C to copy it, try both section **copy** buttons, tick and untick
+the **`\mbox{}`** checkbox (the entry on screen is re-fetched each time, and
+the tick survives a shell restart), click **Report Issues**.
 
 **Testing the missing-dependency flow without uninstalling anything.** The
 plugin exposes debug IPC that fakes the probe result:
